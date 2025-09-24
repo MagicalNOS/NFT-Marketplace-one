@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import Link from 'next/dist/client/link'
 
 export default function Header() {
     return (
@@ -7,7 +8,7 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo Section */}
-                    <div className="flex items-center space-x-3 group">
+                    <Link href="/" className="flex items-center space-x-3 group">
                         <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 p-2 transition-transform duration-300 group-hover:scale-105">
                             <Image
                                 src="/2.png"
@@ -24,31 +25,27 @@ export default function Header() {
                             </h1>
                             <p className="text-xs text-zinc-500 -mt-1">Discover & Collect</p>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Center Navigation (Optional) */}
-                    <nav className="hidden md:flex items-center space-x-8">
-                        <a 
-                            href="/explore" 
-                            className="text-sm font-medium text-zinc-700 hover:text-purple-600 transition-colors duration-200 relative group"
-                        >
-                            Explore
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full" />
-                        </a>
-                        <a 
-                            href="/create" 
-                            className="text-sm font-medium text-zinc-700 hover:text-purple-600 transition-colors duration-200 relative group"
-                        >
-                            Create
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full" />
-                        </a>
-                        <a 
-                            href="/collections" 
-                            className="text-sm font-medium text-zinc-700 hover:text-purple-600 transition-colors duration-200 relative group"
-                        >
-                            Collections
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full" />
-                        </a>
+                    <nav className="hidden md:flex items-center space-x-10 font-medium">
+                        {[
+                            { name: "Explore", href: "/explore" },
+                            { name: "Create", href: "/create" },
+                            { name: "Collections", href: "/collections" },
+                        ].map((item) => (
+                            <a
+                                key={item.name}
+                                href={item.href}
+                                className="relative text-zinc-700 hover:text-purple-600 transition-colors duration-200 group px-2 py-1"
+                            >
+                                {item.name}
+                                {/* underline animation */}
+                                <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-purple-600 transition-all duration-300 group-hover:w-full" />
+                                {/* subtle hover background */}
+                                <span className="absolute inset-0 rounded-lg bg-purple-100/20 opacity-0 transition-opacity duration-200 group-hover:opacity-100 -z-10" />
+                            </a>
+                        ))}
                     </nav>
 
                     {/* Connect Button Section */}
@@ -57,7 +54,7 @@ export default function Header() {
                         <div className="relative">
                             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
                             <div className="relative">
-                                <ConnectButton 
+                                <ConnectButton
                                     showBalance={true}
                                     chainStatus="icon"
                                     accountStatus={{

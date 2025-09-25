@@ -1,4 +1,4 @@
 // pages/explore.tsx
-export default function ExplorePage() {
+export default function CreatePage() {
   return <h1>Create Page</h1>;
 }

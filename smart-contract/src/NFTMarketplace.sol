@@ -67,7 +67,7 @@ contract NFTMarketplace is ReentrancyGuard {
         if(price <= 0) {
             revert NFTMarketplace__PriceMustBeAboveZero();
         }
-        if(nft.getApproved(tokenId) != address(this) || !nft.isApprovedForAll(msg.sender, address(this))) {
+        if(nft.getApproved(tokenId) != address(this) && !nft.isApprovedForAll(msg.sender, address(this))) {
             revert NFTMarketplace__NotApprovedForMarketplace();
         }
         s_listings[nftAddress][tokenId] = price;

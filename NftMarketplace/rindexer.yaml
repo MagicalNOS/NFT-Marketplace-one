@@ -1,0 +1,84 @@
+name: NftMarketplace
+description: A simple marketplace
+project_type: no-code
+config: {}
+timestamps: null
+
+networks:
+  - name: fuji
+    chain_id: 43113
+    rpc: "https://api.avax-test.network/ext/bc/C/rpc"
+    compute_units_per_second: 330
+    max_requests_per_second: 10
+  - name: anvil
+    chain_id: 31337
+    rpc: "http://localhost:8545"
+    compute_units_per_second: 1000
+    max_requests_per_second: 100
+
+# 合约配置
+contracts:
+  - name: NFTMarketplace
+    details:
+      - network: fuji
+        address: "0x3213EB712A2A97E06E9F13a1349ad49FA4331443"  # Fuji网络合约地址
+        start_block: 46325480
+
+        # end_block: "live"      # 持续监听新区块
+      - network: anvil
+        address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"  # 替换为你在Anvil上的合约地址
+        start_block: 0
+    abi: "./abis/nftMarketplaceAbi.json"  # ABI文件路径
+    
+    # 事件过滤器
+    events:
+      - name: ItemListed
+        inputs:
+          - name: seller
+            type: address
+            indexed: true
+          - name: nftAddress  
+            type: address
+            indexed: true
+          - name: tokenId
+            type: uint256
+            indexed: true  
+          - name: price
+            type: uint256
+            indexed: false
+            
+      - name: ItemBought
+        inputs:
+          - name: buyer
+            type: address
+            indexed: true
+          - name: nftAddress
+            type: address  
+            indexed: true
+          - name: tokenId
+            type: uint256
+            indexed: true
+          - name: price
+            type: uint256
+            indexed: false
+            
+      - name: ItemCanceled
+        inputs:
+          - name: seller
+            type: address
+            indexed: true
+          - name: nftAddress
+            type: address
+            indexed: true  
+          - name: tokenId
+            type: uint256
+            indexed: true
+
+# 存储配置 
+storage:
+  postgres:
+    enabled: true
+    drop_each_run: false  # 生产环境设置为false
+    database_url: "postgresql://username:password@localhost:5432/nft_marketplace_db"
+  csv:
+    enabled: true

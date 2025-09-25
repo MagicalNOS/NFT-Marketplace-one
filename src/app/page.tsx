@@ -5,32 +5,112 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 interface Quote {
   en: string;
   zh: string;
-  credit?: string;
+  credit: string;
 }
 
 const QUOTES: Quote[] = [
   {
     en: "Privacy for the weak, transparency for the powerful.",
-    zh: "弱者要有隐私，强者必须透明。",
+    zh: "弱者要有隐私，权力必须透明。",
     credit: "— Cypherpunk maxim"
   },
   {
-    en: "Strong cryptography is the immune system of the digital world.",
-    zh: "强大的密码学是数字世界的免疫系统。",
-    credit: "— Keren Elazari"
+    en: "Cryptography is the ultimate form of non-violent direct action.",
+    zh: "密码学是非暴力直接行动的终极形式。",
+    credit: "— Julian Assange"
   },
   {
-    en: "With cryptography, no amount of violence will ever solve a math problem.",
-    zh: "在密码学面前，再多的暴力也解不开一个数学问题。",
-    credit: "— Jacob Appelbaum"
+    en: "Privacy is necessary for an open society in the electronic age.",
+    zh: "在电子时代，隐私是开放社会的必需品。",
+    credit: "— Eric Hughes"
+  },
+  {
+    en: "We cannot expect governments to grant us privacy out of their benevolence.",
+    zh: "我们不能指望政府出于仁慈而给予我们隐私。",
+    credit: "— Eric Hughes"
+  },
+  {
+    en: "Mathematics doesn't care about your opinion.",
+    zh: "数学不会在乎你的意见。",
+    credit: "— Anonymous"
+  },
+  {
+    en: "Code is law in cyberspace.",
+    zh: "在网络空间中，代码即法律。",
+    credit: "— Lawrence Lessig"
+  },
+  {
+    en: "Don't trust, verify.",
+    zh: "不要信任，要验证。",
+    credit: "— Bitcoin community motto"
+  },
+  {
+    en: "Information wants to be free.",
+    zh: "信息渴望自由。",
+    credit: "— Stewart Brand"
+  },
+  {
+    en: "The Net interprets censorship as damage and routes around it.",
+    zh: "互联网将审查视为损害，并绕过它。",
+    credit: "— John Gilmore"
+  },
+  {
+    en: "A system is only as secure as its weakest link.",
+    zh: "系统的安全性取决于最薄弱的环节。",
+    credit: "— Security principle"
+  },
+  {
+    en: "Perfect forward secrecy is the only way to truly protect the past.",
+    zh: "完美前向保密是真正保护过去的唯一方式。",
+    credit: "— Cryptography principle"
+  },
+  {
+    en: "Arguing that you don't care about privacy because you have nothing to hide is like saying you don't care about free speech because you have nothing to say.",
+    zh: "说你不在乎隐私因为你没什么可隐瞒的，就像说你不在乎言论自由因为你没什么要说的一样。",
+    credit: "— Edward Snowden"
+  },
+  {
+    en: "The only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion.",
+    zh: "对付不自由世界的唯一方法就是变得绝对自由，让你的存在本身就是一种反抗。",
+    credit: "— Albert Camus"
+  },
+  {
+    en: "Your keys, your coins. Not your keys, not your coins.",
+    zh: "你的私钥，你的币。不是你的私钥，就不是你的币。",
+    credit: "— Cryptocurrency maxim"
+  },
+  {
+    en: "Privacy is the power to selectively reveal oneself to the world.",
+    zh: "隐私是选择性地向世界展示自己的力量。",
+    credit: "— Hal Finney"
+  },
+  {
+    en: "Cryptography shifts the balance of power from those with physical force to those who understand mathematics.",
+    zh: "密码学将权力平衡从拥有物理力量的人转向理解数学的人。",
+    credit: "— Cryptoanarchist principle"
+  },
+  {
+    en: "The desire to be watched is a sign of mental illness.",
+    zh: "渴望被监视是精神疾病的征象。",
+    credit: "— Edward Snowden"
+  },
+  {
+    en: "In a world without privacy, dissent is impossible.",
+    zh: "在没有隐私的世界里，异议是不可能的。",
+    credit: "— Privacy advocate principle"
+  },
+  {
+    en: "Zero knowledge proofs: proving you know something without revealing what you know.",
+    zh: "零知识证明：证明你知道某事而不透露你知道什么。",
+    credit: "— Cryptography concept"
   }
 ];
 
 // 可调参数
-const TYPING_SPEED = 45;      // 每个字符打字毫秒
-const DELETING_SPEED = 28;    // 删除时每字符毫秒
-const HOLD_AFTER_TYPE = 2200; // 完整打出后停留
-const HOLD_AFTER_DELETE = 500;// 删除后下一轮前等待
+const TYPING_SPEED = 30;      // 每个字符打字毫秒
+const DELETING_SPEED = 10;    // 删除时每字符毫秒
+const HOLD_AFTER_TYPE = 1100; // 完整打出后停留
+const HOLD_AFTER_DELETE = 350;// 删除后下一轮前等待
 const SHOW_BILINGUAL = true;  // 是否同时显示中英（英→换行→中）
 const LOOP = true;
 
@@ -139,7 +219,7 @@ export default function Home() {
             开始探索
           </a>
           <a
-            href="https://etherscan.io"
+            href="https://testnet.snowtrace.io/address/0x3213EB712A2A97E06E9F13a1349ad49FA4331443/contract/43113/code"
             target="_blank"
             rel="noopener noreferrer"
             className="px-5 py-2 rounded-xl border border-zinc-400/30 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-800/10 transition inline-block"

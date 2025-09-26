@@ -55,12 +55,48 @@ const MARKETPLACE_QUERY = gql`{
   }
 }`;
 
+// 查询特定用户的上架NFT
+const USER_LISTINGS_QUERY = gql`
+  query getUserListings($seller: String!) {
+    itemListeds(where: { seller: $seller }, first: 1000) {
+      id
+      tokenId
+      nftAddress
+      seller
+      price
+    }
+    itemBoughts(first: 1000) {
+      id
+      buyer
+      nftAddress
+      tokenId
+    }
+    itemCanceleds(where: { seller: $seller }, first: 1000) {
+      id
+      seller
+      nftAddress
+      tokenId
+    }
+  }
+`;
+
 export const fetchSubgraphData = async (): Promise<SubgraphData> => {
   try {
     const data = await request(SUBGRAPH_URL, MARKETPLACE_QUERY, {}, headers);
     return data as SubgraphData;
   } catch (error) {
     console.error('Error fetching subgraph data:', error);
+    throw error;
+  }
+};
+
+// 新增：获取特定用户的subgraph数据
+export const fetchUserSubgraphData = async (userAddress: string): Promise<SubgraphData> => {
+  try {
+    const data = await request(SUBGRAPH_URL, USER_LISTINGS_QUERY, { seller: userAddress.toLowerCase() }, headers);
+    return data as SubgraphData;
+  } catch (error) {
+    console.error('Error fetching user subgraph data:', error);
     throw error;
   }
 };
@@ -83,6 +119,17 @@ export const getAvailableNFTs = (data: SubgraphData): ItemListed[] => {
     const key = `${item.nftAddress.toLowerCase()}-${item.tokenId}`;
     return !boughtSet.has(key) && !canceledSet.has(key);
   });
+};
+
+// 新增：获取用户的有效上架NFT
+export const getUserActiveListings = async (userAddress: string): Promise<ItemListed[]> => {
+  try {
+    const userData = await fetchUserSubgraphData(userAddress);
+    return getAvailableNFTs(userData);
+  } catch (error) {
+    console.error('Error fetching user active listings:', error);
+    return [];
+  }
 };
 
 // 从TokenURI获取NFT元数据

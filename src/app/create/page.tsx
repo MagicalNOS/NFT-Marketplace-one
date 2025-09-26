@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { erc721Abi, nftMarketplaceAbi } from '@/constants';
 import { getTokenURI, fetchNFTMetadata, getNFTContractName } from '@/utils/contract';
-import { parseEther } from 'viem';
 import toast, { Toaster } from 'react-hot-toast';
-import Image from 'next/image';
 
 // NFT元数据接口
 export interface NFTData {

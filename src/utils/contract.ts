@@ -131,7 +131,7 @@ export const getNFTContractInfo = async (contractAddress: string) => {
 };
 
 /**
- * 获取市场列表信息
+ * 获取市场列表信息 - 修复版本
  */
 export const getMarketplaceListing = async (nftAddress: string, tokenId: string) => {
   try {
@@ -140,6 +140,8 @@ export const getMarketplaceListing = async (nftAddress: string, tokenId: string)
       return null;
     }
 
+    console.log(`Getting marketplace listing for ${nftAddress}:${tokenId}`);
+
     const listing = await client.readContract({
       address: FUJI_CONTRACTS.nftMarketplace as `0x${string}`,
       abi: nftMarketplaceAbi,
@@ -147,16 +149,72 @@ export const getMarketplaceListing = async (nftAddress: string, tokenId: string)
       args: [nftAddress as `0x${string}`, BigInt(tokenId)]
     });
 
+    console.log('Raw listing data:', listing);
+
+    // 检查 listing 是否存在且有效
+    if (!listing) {
+      console.log('No listing found');
+      return null;
+    }
+
     // 假设getListing返回的是一个对象或元组，通常为 [price, seller]
-    const price = Array.isArray(listing) ? listing[0] : (listing as any).price;
-    const seller = Array.isArray(listing) ? listing[1] : (listing as any).seller;
+    let price: bigint | undefined;
+    let seller: string | undefined;
+
+    if (Array.isArray(listing)) {
+      price = listing[0] as bigint;
+      seller = listing[1] as string;
+    } else if (typeof listing === 'object' && listing !== null) {
+      price = (listing as any).price;
+      seller = (listing as any).seller;
+    } else {
+      console.warn('Unexpected listing format:', listing);
+      return null;
+    }
+
+    // 验证价格和卖家信息
+    if (price === undefined || price === null) {
+      console.log('Price is undefined or null');
+      return null;
+    }
+
+    if (seller === undefined || seller === null) {
+      console.log('Seller is undefined or null');
+      return null;
+    }
+
+    // 检查是否是有效的上架（价格大于0，卖家不是零地址）
+    const priceValue = BigInt(price);
+    if (priceValue === BigInt(0)) {
+      console.log('Item is not listed (price is 0)');
+      return null;
+    }
+
+    if (seller === '0x0000000000000000000000000000000000000000') {
+      console.log('Item is not listed (seller is zero address)');
+      return null;
+    }
+
+    console.log(`Found listing: price=${priceValue.toString()}, seller=${seller}`);
 
     return {
-      price: formatUnits(price, 18), // 假设价格以wei为单位
-      seller
+      price: formatUnits(priceValue, 6), // USDC使用6位小数
+      seller: seller
     };
+
   } catch (error) {
     console.error(`Error getting marketplace listing for ${nftAddress}:${tokenId}`, error);
+    
+    // 如果是因为NFT未上架导致的错误，返回null而不是抛出错误
+    if (error instanceof Error) {
+      if (error.message.includes('execution reverted') || 
+          error.message.includes('call revert exception') ||
+          error.message.includes('Item not listed')) {
+        console.log('Item is not listed on the marketplace');
+        return null;
+      }
+    }
+    
     return null;
   }
 };
@@ -285,13 +343,20 @@ export const getCompleteNFTInfo = async (contractAddress: string, tokenId: strin
     console.log(`Getting complete NFT info for ${contractAddress}:${tokenId}`);
     
     // 并行获取基本信息，包括合约名称
-    const [tokenURI, owner, contractInfo, marketplaceListing, contractName] = await Promise.all([
+    const [tokenURI, owner, contractInfo, contractName] = await Promise.all([
       getTokenURI(contractAddress, tokenId),
       getNFTOwner(contractAddress, tokenId),
       getNFTContractInfo(contractAddress),
-      getMarketplaceListing(contractAddress, tokenId),
       getNFTContractName(contractAddress) // 新增获取合约名称
     ]);
+    
+    // 获取市场列表信息（可能为null）
+    let marketplaceListing = null;
+    try {
+      marketplaceListing = await getMarketplaceListing(contractAddress, tokenId);
+    } catch (error) {
+      console.log('Failed to get marketplace listing, item may not be listed:', error);
+    }
     
     // 获取元数据
     let metadata: NFTMetadata | null = null;
@@ -312,7 +377,7 @@ export const getCompleteNFTInfo = async (contractAddress: string, tokenId: strin
       owner,
       contractInfo,
       contractName, // 新增字段
-      marketplaceListing,
+      marketplaceListing, // 可能为null
       metadata: metadata ? {
         ...metadata,
         name: displayName // 使用优化后的显示名称

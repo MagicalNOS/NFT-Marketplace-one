@@ -21,7 +21,7 @@ export default function Header() {
                         </div>
                         <div className="hidden sm:block">
                             <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                NFT Marketplace
+                                Marketplace One
                             </h1>
                             <p className="text-xs text-zinc-500 -mt-1">Discover & Collect</p>
                         </div>
@@ -30,9 +30,9 @@ export default function Header() {
                     {/* Center Navigation (Optional) */}
                     <nav className="hidden md:flex items-center space-x-10 font-medium">
                         {[
-                            { name: "Explore", href: "/explore" },
-                            { name: "Publish", href: "/create" },
-                            { name: "Delist", href: "/collections" },
+                            { name: "探索", href: "/explore" },
+                            { name: "发行", href: "/create" },
+                            { name: "下架", href: "/collections" },
                         ].map((item) => (
                             <a
                                 key={item.name}
@@ -72,13 +72,13 @@ export default function Header() {
             <div className="md:hidden px-4 pb-3">
                 <nav className="flex space-x-6">
                     <a href="/explore" className="text-sm font-medium text-zinc-600 hover:text-purple-600 transition-colors">
-                        Explore
+                        探索
                     </a>
                     <a href="/create" className="text-sm font-medium text-zinc-600 hover:text-purple-600 transition-colors">
-                        Publish
+                        发行
                     </a>
                     <a href="/collections" className="text-sm font-medium text-zinc-600 hover:text-purple-600 transition-colors">
-                        Delist
+                        下架
                     </a>
                 </nav>
             </div>

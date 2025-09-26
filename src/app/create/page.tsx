@@ -509,7 +509,7 @@ export default function CreatePage() {
                     },
                 }}
             />
-            <h1 className="text-4xl font-bold mb-8">Publish Your NFT</h1>
+            <h1 className="text-4xl font-bold mb-8">发布您的NFT</h1>
 
             {/* 调整为更平衡的 3:2 布局比例 */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[750px]">
@@ -529,7 +529,7 @@ export default function CreatePage() {
                             disabled={isApproving || isListing}
                         />
                         <p className="mt-1 text-xs text-gray-500">
-                            Enter the contract address of the NFT collection
+                            输入NFT收藏的合约地址
                         </p>
                     </div>
 
@@ -547,7 +547,7 @@ export default function CreatePage() {
                             disabled={isApproving || isListing}
                         />
                         <p className="mt-1 text-xs text-gray-500">
-                            Enter the specific token ID of your NFT
+                            请输入您NFT的具体代币ID
                         </p>
                     </div>
 
@@ -570,7 +570,7 @@ export default function CreatePage() {
                             </span>
                         </div>
                         <p className="mt-1 text-xs text-gray-500">
-                            Enter the price in USDC (e.g., 100.00 for 100 USDC)
+                            请输入USDC价格（例如，100.00代表100 USDC）
                         </p>
                     </div>
 

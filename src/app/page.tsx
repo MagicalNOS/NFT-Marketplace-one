@@ -278,7 +278,7 @@ export default function Home() {
       {/* Hero */}
       <section className="text-center space-y-4">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 to-cyan-400 text-transparent bg-clip-text">
-          NFT Marketplace
+          Marketplace One
         </h1>
         <p className="text-lg text-zinc-700 dark:text-zinc-300 max-w-3xl mx-auto">
           一个完全 <span className="font-semibold">Permissionless</span>、<span className="font-semibold">Non-Custodial</span>、<span className="font-semibold">Composable</span> 的 NFT 交易与发现平台。

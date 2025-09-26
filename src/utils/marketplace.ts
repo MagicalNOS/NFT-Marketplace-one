@@ -16,6 +16,37 @@ const FUJI_CONTRACTS = {
 };
 
 /**
+ * 确保钱包连接的辅助函数
+ */
+const ensureWalletConnection = async (): Promise<string[]> => {
+  if (!window.ethereum) {
+    throw new Error('No wallet detected');
+  }
+
+  try {
+    // 首先检查是否已有连接的账户
+    let accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    console.log('Current connected accounts:', accounts);
+    
+    if (accounts.length === 0) {
+      console.log('No accounts connected, requesting connection...');
+      // 如果没有连接，请求连接
+      accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      console.log('Accounts after request:', accounts);
+    }
+    
+    if (accounts.length === 0) {
+      throw new Error('No wallet connected');
+    }
+    
+    return accounts;
+  } catch (error) {
+    console.error('Error ensuring wallet connection:', error);
+    throw error;
+  }
+};
+
+/**
  * 检查USDC授权额度
  */
 export const getUSDCAllowance = async (
@@ -61,31 +92,44 @@ export const getUSDCBalance = async (walletAddress: string): Promise<bigint> => 
  */
 export const approveUSDC = async (amount: string): Promise<`0x${string}` | null> => {
   try {
-    if (!window.ethereum) {
-      throw new Error('No wallet detected');
-    }
+    console.log('Starting USDC approval process...');
+    
+    // 确保钱包连接
+    const accounts = await ensureWalletConnection();
+    const account = accounts[0] as `0x${string}`;
+    console.log('Using account for approval:', account);
 
     const walletClient = createWalletClient({
       chain: avalancheFuji,
       transport: custom(window.ethereum)
     });
 
-    const accounts = await walletClient.getAddresses();
-    if (accounts.length === 0) {
-      throw new Error('No wallet connected');
+    // 双重检查：使用 walletClient.getAddresses() 验证
+    const walletAddresses = await walletClient.getAddresses();
+    console.log('Wallet client addresses:', walletAddresses);
+    
+    if (walletAddresses.length === 0) {
+      console.warn('walletClient.getAddresses() returned empty array, but window.ethereum has accounts');
+      // 使用从 window.ethereum 获取的账户继续
     }
+
+    // 使用有效的账户地址
+    const finalAccount = walletAddresses.length > 0 ? walletAddresses[0] : account;
+    console.log('Final account for transaction:', finalAccount);
 
     // 转换价格为USDC单位（6位小数）
     const amountInUSDC = parseUnits(amount, 6);
+    console.log('Amount in USDC units:', amountInUSDC);
 
     const hash = await walletClient.writeContract({
       address: FUJI_CONTRACTS.usdc as `0x${string}`,
       abi: erc20Abi,
       functionName: 'approve',
       args: [FUJI_CONTRACTS.nftMarketplace as `0x${string}`, amountInUSDC],
-      account: accounts[0]
+      account: finalAccount
     });
 
+    console.log('USDC approval transaction hash:', hash);
     return hash;
   } catch (error) {
     console.error('Error approving USDC:', error);
@@ -101,19 +145,30 @@ export const buyNFT = async (
   tokenId: string
 ): Promise<`0x${string}` | null> => {
   try {
-    if (!window.ethereum) {
-      throw new Error('No wallet detected');
-    }
+    console.log('Starting NFT purchase process...');
+    
+    // 确保钱包连接
+    const accounts = await ensureWalletConnection();
+    const account = accounts[0] as `0x${string}`;
+    console.log('Using account for NFT purchase:', account);
 
     const walletClient = createWalletClient({
       chain: avalancheFuji,
       transport: custom(window.ethereum)
     });
 
-    const accounts = await walletClient.getAddresses();
-    if (accounts.length === 0) {
-      throw new Error('No wallet connected');
+    // 双重检查：使用 walletClient.getAddresses() 验证
+    const walletAddresses = await walletClient.getAddresses();
+    console.log('Wallet client addresses:', walletAddresses);
+    
+    if (walletAddresses.length === 0) {
+      console.warn('walletClient.getAddresses() returned empty array, but window.ethereum has accounts');
+      // 使用从 window.ethereum 获取的账户继续
     }
+
+    // 使用有效的账户地址
+    const finalAccount = walletAddresses.length > 0 ? walletAddresses[0] : account;
+    console.log('Final account for NFT transaction:', finalAccount);
 
     const hash = await walletClient.writeContract({
       address: FUJI_CONTRACTS.nftMarketplace as `0x${string}`,
@@ -123,9 +178,10 @@ export const buyNFT = async (
         nftAddress as `0x${string}`,
         [BigInt(tokenId)]
       ],
-      account: accounts[0]
+      account: finalAccount
     });
 
+    console.log('NFT purchase transaction hash:', hash);
     return hash;
   } catch (error) {
     console.error('Error buying NFT:', error);

@@ -511,7 +511,7 @@ export default function CreatePage() {
                     },
                 }}
             />
-            <h1 className="text-4xl font-bold mb-8">List Your NFT</h1>
+            <h1 className="text-4xl font-bold mb-8">Publish Your NFT</h1>
 
             {/* 调整为更平衡的 3:2 布局比例 */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 h-[750px]">

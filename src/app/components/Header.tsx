@@ -31,8 +31,8 @@ export default function Header() {
                     <nav className="hidden md:flex items-center space-x-10 font-medium">
                         {[
                             { name: "Explore", href: "/explore" },
-                            { name: "List", href: "/create" },
-                            { name: "Collections", href: "/collections" },
+                            { name: "Publish", href: "/create" },
+                            { name: "Delist", href: "/collections" },
                         ].map((item) => (
                             <a
                                 key={item.name}
@@ -75,10 +75,10 @@ export default function Header() {
                         Explore
                     </a>
                     <a href="/create" className="text-sm font-medium text-zinc-600 hover:text-purple-600 transition-colors">
-                        List
+                        Publish
                     </a>
                     <a href="/collections" className="text-sm font-medium text-zinc-600 hover:text-purple-600 transition-colors">
-                        Collections
+                        Delist
                     </a>
                 </nav>
             </div>

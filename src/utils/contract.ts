@@ -28,6 +28,21 @@ export interface NFTMetadata {
     value: string | number;
   }>;
 }
+
+// 在文件顶部添加 IPFS URL 转换函数
+function convertIPFSUrl(url: string): string {
+  if (!url) return '';
+  
+  // 如果是 IPFS URL，转换为 HTTP 网关
+  if (url.startsWith('ipfs://')) {
+    const hash = url.replace('ipfs://', '');
+    return `https://gateway.pinata.cloud/ipfs/${hash}`;
+  }
+  
+  // 如果已经是 HTTP URL，直接返回
+  return url;
+}
+
 /**
  * 获取NFT合约名称
  */
@@ -147,17 +162,42 @@ export const getMarketplaceListing = async (nftAddress: string, tokenId: string)
 };
 
 /**
- * 处理不同类型的URI
+ * 处理元数据
+ */
+const processMetadata = (metadata: any): NFTMetadata => {
+  return {
+    name: metadata.name || metadata.title || 'Unnamed NFT',
+    description: metadata.description || 'No description available',
+    image: metadata.image || '',
+    external_url: metadata.external_url,
+    attributes: metadata.attributes || metadata.traits || []
+  };
+};
+
+/**
+ * 创建后备元数据
+ */
+const createFallbackMetadata = (): NFTMetadata => {
+  return {
+    name: 'Failed to Load',
+    description: 'Could not fetch metadata',
+    image: '',
+    attributes: []
+  };
+};
+
+/**
+ * 处理不同类型的URI - 修复版本
  */
 const resolveURI = (uri: string): string => {
   if (!uri) return '';
   
-  // IPFS URLs
+  // IPFS URLs - 实际转换为HTTP网关
   if (uri.startsWith('ipfs://')) {
-    return uri.replace('ipfs://', 'https://gateway.pinata.cloud/ipfs/');
+    return convertIPFSUrl(uri);
   }
   
-  // 其他协议的URLs可以在这里处理
+  // 其他协议
   if (uri.startsWith('ar://')) {
     return uri.replace('ar://', 'https://arweave.net/');
   }
@@ -169,23 +209,13 @@ const resolveURI = (uri: string): string => {
   
   // Base64 encoded JSON
   if (uri.startsWith('data:application/json;base64,')) {
-    try {
-      const base64Data = uri.replace('data:application/json;base64,', '');
-      const jsonData = atob(base64Data);
-      const metadata = JSON.parse(jsonData);
-      return metadata;
-    } catch (error) {
-      console.error('Error parsing base64 JSON:', error);
-      return '';
-    }
+    return uri;
   }
   
   return uri;
 };
 
-/**
- * 从tokenURI获取NFT元数据 - 修复CORS问题
- */
+// 你现有的 fetchNFTMetadata 函数保持不变，现在应该可以正常工作了
 export const fetchNFTMetadata = async (tokenUri: string): Promise<NFTMetadata | null> => {
   if (!tokenUri) {
     console.warn('No tokenURI provided');
@@ -204,35 +234,27 @@ export const fetchNFTMetadata = async (tokenUri: string): Promise<NFTMetadata | 
         
         // 处理图片URL
         if (metadata.image) {
-          metadata.image = resolveURI(metadata.image);
+          metadata.image = convertIPFSUrl(metadata.image);
         }
         
-        console.log('Parsed base64 metadata:', metadata);
-        return metadata;
+        return processMetadata(metadata);
       } catch (error) {
         console.error('Error parsing base64 metadata:', error);
-        return null;
+        return createFallbackMetadata();
       }
     }
     
-    // 解析URI
+    // 解析URI - 关键修复点
     const metadataUrl = resolveURI(tokenUri);
-    if (!metadataUrl) {
-      console.error('Could not resolve URI:', tokenUri);
-      return null;
-    }
-    
     console.log(`Resolved metadata URL: ${metadataUrl}`);
     
-    // 获取元数据 - 简化请求头避免CORS问题
+    // 获取元数据
     const response = await fetch(metadataUrl, {
       method: 'GET',
-      // 移除可能导致CORS的headers
       headers: {
         'Accept': 'application/json',
       },
-      // 添加超时
-      signal: AbortSignal.timeout(10000) // 10秒超时
+      signal: AbortSignal.timeout(10000)
     });
     
     if (!response.ok) {
@@ -244,36 +266,14 @@ export const fetchNFTMetadata = async (tokenUri: string): Promise<NFTMetadata | 
     
     // 处理图片URL
     if (metadata.image) {
-      metadata.image = resolveURI(metadata.image);
+      metadata.image = convertIPFSUrl(metadata.image);
     }
     
-    // 验证必需字段
-    if (!metadata.name && !metadata.title) {
-      metadata.name = `Unnamed NFT`;
-    }
-    
-    if (!metadata.description) {
-      metadata.description = 'No description available';
-    }
-    
-    return {
-      name: metadata.name || metadata.title || 'Unnamed NFT',
-      description: metadata.description || 'No description available',
-      image: metadata.image || '',
-      external_url: metadata.external_url,
-      attributes: metadata.attributes || metadata.traits || []
-    };
+    return processMetadata(metadata);
     
   } catch (error) {
     console.error('Error fetching NFT metadata:', error);
-    
-    // 返回默认元数据而不是null
-    return {
-      name: 'Failed to Load',
-      description: 'Could not fetch metadata',
-      image: '',
-      attributes: []
-    };
+    return createFallbackMetadata();
   }
 };
 
